@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Command\Consumers;
+namespace App\Command;
 
-use App\Command\CommandInterface;
 use App\Repository\EmailRepository;
 use App\Service\Email\EmailService;
+use App\Service\Email\EmailValidateHandler;
 use App\Service\RabbitClient;
-use App\Service\User\CheckSubscriptionHandler;
 
-class UserCheckSubscriptionsConsumer implements CommandInterface
+class EmailValidateConsumer implements CommandInterface
 {
     public function execute() : void
     {
@@ -17,7 +16,7 @@ class UserCheckSubscriptionsConsumer implements CommandInterface
         $connection = RabbitClient::get()->connect();
         $channel = $connection->channel();
         $channel->exchange_declare(
-            RabbitClient::USER_EXPIRE_SUBSCRIPTION_EXCHANGE,
+            RabbitClient::EMAIL_VALIDATE_EXCHANGE,
             'fanout',
             false,
             false,
@@ -38,7 +37,7 @@ class UserCheckSubscriptionsConsumer implements CommandInterface
             true,
             false,
             false,
-            new CheckSubscriptionHandler($emailService)
+            new EmailValidateHandler($emailService)
         );
 
         while ($channel->is_open()) {

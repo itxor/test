@@ -30,7 +30,7 @@ class DatabaseConnection
 
     public static function get() : self
     {
-        if (null !== self::$connection) {
+        if (null === self::$connection) {
             self::$connection = new self();
         }
 

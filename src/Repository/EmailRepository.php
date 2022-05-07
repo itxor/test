@@ -14,7 +14,7 @@ class EmailRepository
         $this->connection = DatabaseConnection::get()->connect();
     }
 
-    public function isValidEmailByUserId(int $userId) : bool
+    public function isValidEmailByUserId(int $userId): bool
     {
         $sql = <<<SQL
 select is_valid 
@@ -25,8 +25,24 @@ SQL;
 
         $prepareSql = $this->connection->prepare($sql);
 
-        $userInfo =  $prepareSql->fetch();
+        $userInfo = $prepareSql->fetch();
 
         return (bool)$userInfo['is_valid'];
+    }
+
+    public function findNotCheckedEmails(): array
+    {
+        $sql = <<<SQL
+select id, email 
+from users u
+join emails e on e.id = u.email_id
+where u.confirmed = true 
+    and e.checked = false
+SQL;
+
+        return $this
+            ->connection
+            ->prepare($sql)
+            ->fetchAll(PDO::FETCH_ASSOC);
     }
 }

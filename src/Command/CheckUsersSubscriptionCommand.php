@@ -9,7 +9,7 @@ use App\Service\Email\ValidateDTO;
 use App\Service\User\SendEmailDTO;
 use App\Service\User\UserService;
 
-class CheckExpiredUsersCommand implements CommandInterface
+class CheckUsersSubscriptionCommand implements CommandInterface
 {
     public function execute() : void
     {

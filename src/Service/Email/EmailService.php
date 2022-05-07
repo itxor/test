@@ -16,6 +16,11 @@ class EmailService
         $this->emailRepository = $emailRepository;
     }
 
+    public function getNotCheckedEmails() : array
+    {
+        return $this->emailRepository->findNotCheckedEmails();
+    }
+
     public function isValidEmailByUserId(int $userId) : bool
     {
         return $this->emailRepository->isValidEmailByUserId($userId);
@@ -27,7 +32,7 @@ class EmailService
         $channel = $connection->channel();
 
         $channel->exchange_declare(
-            RabbitClient::USER_EXPIRE_SUBSCRIPTION_EXCHANGE,
+            RabbitClient::EMAIL_VALIDATE_EXCHANGE,
             'fanout',
             false,
             false,
@@ -35,10 +40,17 @@ class EmailService
         );
 
         $msg = new AMQPMessage(serialize($dto));
-        $channel->basic_publish($msg, RabbitClient::USER_EXPIRE_SUBSCRIPTION_EXCHANGE);
+        $channel->basic_publish($msg, RabbitClient::EMAIL_VALIDATE_EXCHANGE);
 
         $channel->close();
         $connection->close();
+    }
+
+    public function validateEmail(ValidateDTO $dto) : bool
+    {
+        sleep(20);
+
+        return true;
     }
 
     public function sendEmail(SendEmailDTO $dto) : void
