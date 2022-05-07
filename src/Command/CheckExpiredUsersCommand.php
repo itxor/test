@@ -2,17 +2,37 @@
 
 namespace App\Command;
 
+use App\Repository\EmailRepository;
 use App\Repository\UserRepository;
-use App\Service\Connection;
-use App\Service\UserService;
+use App\Service\Email\EmailService;
+use App\Service\Email\ValidateDTO;
+use App\Service\User\SendEmailDTO;
+use App\Service\User\UserService;
 
-class CheckExpiredUsersCommand
+class CheckExpiredUsersCommand implements CommandInterface
 {
     public function execute() : void
     {
-        $userRepository = new UserRepository();
-        $service = new UserService($userRepository);
+        $userService = new UserService(new UserRepository());
+        $emailService = new EmailService(new EmailRepository());
 
-        $users = $service->getExpiredUsers();
+        $users = $userService->getExpiredUsers();
+        if (0 === count($users)) {
+            return;
+        }
+
+        foreach ($users as $user) {
+            if (!$emailService->isValidEmailByUserId($user['user_id'])) {
+                $emailService->dispatchEmailValidateMessage(
+                    new ValidateDTO($user['user_id'], $user['email'])
+                );
+
+                continue;
+            }
+
+            $userService->dispatchExpireSubscriptionMessage(
+                new SendEmailDTO($user['user_id'])
+            );
+        }
     }
 }

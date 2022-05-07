@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Service\DatabaseConnection;
 use PDO;
 
-class UserRepository
+class EmailRepository
 {
     private PDO $connection;
 
@@ -14,15 +14,19 @@ class UserRepository
         $this->connection = DatabaseConnection::get()->connect();
     }
 
-    public function getUsersWithExpiredSubscribe(int $checkedExpiredAt) : array
+    public function isValidEmailByUserId(int $userId) : bool
     {
         $sql = <<<SQL
-select user_id from users where expired_at < $checkedExpiredAt 
+select is_valid 
+from users
+join emails e on users.email_id = e.id
+where user_id = $userId
 SQL;
 
         $prepareSql = $this->connection->prepare($sql);
 
-        return $prepareSql->fetchAll();
-    }
+        $userInfo =  $prepareSql->fetch();
 
+        return (bool)$userInfo['is_valid'];
+    }
 }

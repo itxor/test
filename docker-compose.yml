@@ -11,6 +11,8 @@ services:
       - POSTGRES_DB=${DBNAME}
     volumes:
       - ./data/db:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
     networks:
       - karma8-network
 
@@ -29,6 +31,14 @@ services:
       - './:/var/www/karma8'
     networks:
       - karma8-network
+
+  rabbit:
+    image: rabbitmq:latest
+    networks:
+      - karma8-network
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
 
 networks:
   karma8-network:

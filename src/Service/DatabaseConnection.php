@@ -4,9 +4,13 @@ namespace App\Service;
 
 use PDO;
 
-class Connection
+class DatabaseConnection
 {
     private static ?self $connection = null;
+
+    private function __construct()
+    {
+    }
 
     public function connect(): PDO
     {
@@ -27,10 +31,8 @@ class Connection
     public static function get() : self
     {
         if (null !== self::$connection) {
-            return self::$connection;
+            self::$connection = new self();
         }
-
-        self::$connection = new self();
 
         return self::$connection;
     }
