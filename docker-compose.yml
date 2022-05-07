@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: test
+      POSTGRES_USER: test
+      POSTGRES_DB: test
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - './docker/db:/var/lib/postgresql/data'
+    networks:
+      - karma8-network
+
+  php:
+    build:
+      args:
+        UID: ${USERID}
+        GID: ${GROUPID}
+      context: ./docker/php
+    user: ${USERID}:${GROUPID}
+    working_dir: '/var/www/karma8'
+    restart: always
+    volumes:
+      - './:/var/www/karma8'
+    networks:
+      - karma8-network
+
+networks:
+  karma8-network:
+    external: false
