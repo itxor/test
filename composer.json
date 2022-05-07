@@ -5,5 +5,7 @@
             "App\\": "src/"
         }
     },
-    "require": {}
+    "require": {
+        "robmorgan/phinx": "^0.12.10"
+    }
 }

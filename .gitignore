@@ -2,3 +2,4 @@
 docker/db
 .env
 /vendor/
+/data/

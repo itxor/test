@@ -1,8 +1,9 @@
 FROM composer as composer
 
-FROM php:8.1-fpm-alpine
+FROM php:8.0-fpm
 
-RUN apk add --no-cache bash
+RUN apt-get update; apt-get install -y software-properties-common libpq-dev && \
+        docker-php-ext-install pdo pdo_pgsql pgsql
 
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 

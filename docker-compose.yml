@@ -3,15 +3,14 @@ version: "3.9"
 services:
 
   db:
-    image: postgres
+    image: postgres:alpine
     restart: always
     environment:
-      POSTGRES_PASSWORD: test
-      POSTGRES_USER: test
-      POSTGRES_DB: test
-      PGDATA: /var/lib/postgresql/data
+      - POSTGRES_USER=${DBUSER}
+      - POSTGRES_PASSWORD=${DBPASS}
+      - POSTGRES_DB=${DBNAME}
     volumes:
-      - './docker/db:/var/lib/postgresql/data'
+      - ./data/db:/var/lib/postgresql/data
     networks:
       - karma8-network
 
@@ -23,6 +22,8 @@ services:
       context: ./docker/php
     user: ${USERID}:${GROUPID}
     working_dir: '/var/www/karma8'
+    env_file:
+      - ./.env
     restart: always
     volumes:
       - './:/var/www/karma8'
