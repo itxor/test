@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Repository\EmailRepository;
 use App\Service\Email\EmailService;
 use App\Service\Email\EmailValidateHandler;
+use App\Service\LogService;
 use App\Service\RabbitClient;
 use DateTime;
 use Exception;
@@ -15,6 +16,7 @@ class EmailValidateConsumer implements CommandInterface
 
     public function execute() : void
     {
+        $logger = new LogService();
         $emailService = new EmailService(new EmailRepository());
 
         try {
@@ -35,6 +37,8 @@ class EmailValidateConsumer implements CommandInterface
                 true,
                 false
             );
+            $channel->queue_bind($queueName, RabbitClient::EMAIL_VALIDATE_EXCHANGE);
+
             $channel->basic_consume(
                 $queueName,
                 '',
@@ -52,12 +56,14 @@ class EmailValidateConsumer implements CommandInterface
             $channel->close();
             $connection->close();
         } catch (Exception $exception) {
-            echo sprintf(
+            $msg = sprintf(
                 "%s (%s): Ошибка при попытке валидации email'а: %s\n",
                 __METHOD__,
                 (new DateTime())->format('Y-m-d H:i:s'),
                 $exception->getMessage(),
             );
+            echo $msg;
+            $logger->getLogger()->error($msg);
 
             return;
         }

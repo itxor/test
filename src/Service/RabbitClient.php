@@ -9,7 +9,7 @@ class RabbitClient
     public const USER_EXPIRE_SUBSCRIPTION_EXCHANGE = 'user_subscribe_expire';
     public const EMAIL_VALIDATE_EXCHANGE = 'email_validate_expire';
 
-    private static ?self $client;
+    private static ?self $client = null;
 
     private function __construct()
     {

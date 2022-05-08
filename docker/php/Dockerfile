@@ -4,8 +4,9 @@ FROM php:8.0-fpm
 
 RUN apt-get update; apt-get install -y software-properties-common \
     libpq-dev \
+    libsodium23 libsodium-dev \
     git && \
-    docker-php-ext-install pdo pdo_pgsql pgsql
+    docker-php-ext-install pdo pdo_pgsql pgsql bcmath sodium sockets
 
 
 RUN mkdir -p /usr/src/php/ext/redis \

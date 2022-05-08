@@ -6,6 +6,7 @@ use App\Repository\EmailRepository;
 use App\Repository\UserRepository;
 use App\Service\Email\EmailService;
 use App\Service\LockService;
+use App\Service\LogService;
 use App\Service\User\SendEmailDTO;
 use App\Service\User\UserService;
 use DateTime;
@@ -17,6 +18,7 @@ class CheckUsersSubscriptionCommand implements CommandInterface
 
     public function execute(): void
     {
+        $logger = new LogService();
         $lockService = new LockService();
         $isReleaseLock = true;
         try {
@@ -31,7 +33,7 @@ class CheckUsersSubscriptionCommand implements CommandInterface
             $userService = new UserService(new UserRepository());
             $emailService = new EmailService(new EmailRepository());
 
-            $threeDaysExpired = (new DateTime())->modify('-3 days')->getTimestamp();
+            $threeDaysExpired = (new DateTime())->modify('+3 days')->getTimestamp();
 
             $lastId = 0;
             while (true) {
@@ -43,12 +45,14 @@ class CheckUsersSubscriptionCommand implements CommandInterface
                 if (0 === count($users)) {
                     break;
                 }
+                echo "count: " . count($users) . "\n";
 
                 foreach ($users as $user) {
                     if (!$emailService->isValidEmailByUserId($user['user_id'])) {
                         continue;
                     }
 
+                    echo "отправляем событие!\n";
                     $userService->dispatchExpireSubscriptionMessage(
                         new SendEmailDTO($user['user_id'])
                     );
@@ -57,12 +61,14 @@ class CheckUsersSubscriptionCommand implements CommandInterface
                 $lastId = $users[count($users) - 1]['user_id'];
             }
         } catch (Exception $exception) {
-            echo sprintf(
+            $msg = sprintf(
                 "%s (%s): Ошибка проверке подписки пользователей: %s\n",
                 __METHOD__,
                 (new DateTime())->format('Y-m-d H:i:s'),
                 $exception->getMessage(),
             );
+
+            $logger->getLogger()->error($msg);
 
             return;
         } finally {

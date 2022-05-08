@@ -17,10 +17,14 @@ services:
       - karma8-network
 
   rabbit:
-    image: rabbitmq:latest
+    build:
+      context: ./docker/rabbit
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
+    ports:
+      - '127.0.0.1:15672:15672'
+      - '127.0.0.1:5672:5672'
     networks:
       - karma8-network
 

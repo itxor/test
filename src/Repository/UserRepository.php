@@ -20,30 +20,20 @@ class UserRepository
 select user_id 
 from users u
 join emails e on u.email_id = e.id
-where u.confirmed = true 
+where u.is_confirmed = true 
     and e.is_valid = true 
-    and u.expired_at < $checkedExpiredAt
-    and u.user_id > $lastId
+    and u.expired_at < :checkExpiredAt 
+    and u.user_id > :lastId 
 order by user_id
-limit $limit;
+limit :maxRows;
 SQL;
 
-        $prepareSql = $this->connection->prepare($sql);
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bindParam('checkExpiredAt', $checkedExpiredAt, PDO::PARAM_INT);
+        $stmt->bindParam('lastId', $lastId, PDO::PARAM_INT);
+        $stmt->bindParam('maxRows', $limit, PDO::PARAM_INT);
+        $stmt->execute();
 
-        return $prepareSql->fetchAll();
+        return $stmt->fetchAll();
     }
-
-    public function isConfirmed(int $userId) : bool
-    {
-        $sql = <<<SQL
-select confirmed from users where user_id = $userId 
-SQL;
-
-        $prepareSql = $this->connection->prepare($sql);
-
-        $isConfirmed = $prepareSql->fetch();
-
-        return (bool)$isConfirmed;
-    }
-
 }

@@ -2,6 +2,7 @@
 
 use App\Service\DotEnvService;
 use App\Command;
+use App\Service\LogService;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -43,6 +44,11 @@ if (!is_readable($path)) {
     return;
 }
 
+$logger = new LogService();
 $runner = new Command\Runner($class);
-// todo: add try..catch
+
 $runner->run();
+//} catch (Exception $exception) {
+//    echi $
+//    $logger->getLogger()->error($exception->getMessage());
+//}

@@ -28,6 +28,7 @@ class EmailService
 
     public function dispatchEmailValidateMessage(ValidateDTO $dto) : void
     {
+        echo "диспатчинг: \n";
         $connection = RabbitClient::get()->connect();
         $channel = $connection->channel();
 
@@ -41,6 +42,7 @@ class EmailService
 
         $msg = new AMQPMessage(serialize($dto));
         $channel->basic_publish($msg, RabbitClient::EMAIL_VALIDATE_EXCHANGE);
+        echo "опубликовано\n";
 
         $channel->close();
         $connection->close();
@@ -48,14 +50,21 @@ class EmailService
 
     public function validateEmail(ValidateDTO $dto) : bool
     {
-        sleep(20);
+        echo "ура!\n";
+
+        sleep(5);
+
+        $this->emailRepository->updateCheckedStatus($dto->getEmailId(), true);
 
         return true;
     }
 
     public function sendEmail(SendEmailDTO $dto) : void
     {
+        echo "ура!\n";
+
         // todo: реализовать
         sleep(5);
+        $userId = $dto->getUserId();
     }
 }
