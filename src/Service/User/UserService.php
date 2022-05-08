@@ -18,13 +18,11 @@ class UserService
         $this->userRepository = $userRepository;
     }
 
-    public function getExpiredUsers() : array
+    public function getExpiredUsersBatch(int $expiredTime, int $lastId, int $limit) : array
     {
-        $threeDaysExpired = (new DateTime())->modify('-3 days')->getTimestamp();
-
         return $this
             ->userRepository
-            ->getUsersWithExpiredSubscribe($threeDaysExpired);
+            ->getUsersWithExpiredSubscribeBatch($expiredTime, $lastId, $limit);
     }
 
     public function dispatchExpireSubscriptionMessage(SendEmailDTO $dto) : void

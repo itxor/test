@@ -6,6 +6,8 @@ use App\Repository\EmailRepository;
 use App\Service\Email\EmailService;
 use App\Service\RabbitClient;
 use App\Service\User\CheckSubscriptionHandler;
+use DateTime;
+use Exception;
 
 class UserCheckSubscriptionsConsumer implements CommandInterface
 {
@@ -13,38 +15,49 @@ class UserCheckSubscriptionsConsumer implements CommandInterface
     {
         $emailService = new EmailService(new EmailRepository());
 
-        $connection = RabbitClient::get()->connect();
-        $channel = $connection->channel();
-        $channel->exchange_declare(
-            RabbitClient::USER_EXPIRE_SUBSCRIPTION_EXCHANGE,
-            'fanout',
-            false,
-            false,
-            false
-        );
+        try {
+            $connection = RabbitClient::get()->connect();
+            $channel = $connection->channel();
+            $channel->exchange_declare(
+                RabbitClient::USER_EXPIRE_SUBSCRIPTION_EXCHANGE,
+                'fanout',
+                false,
+                false,
+                false
+            );
 
-        list($queueName,) = $channel->queue_declare(
-            "",
-            false,
-            false,
-            true,
-            false
-        );
-        $channel->basic_consume(
-            $queueName,
-            '',
-            false,
-            true,
-            false,
-            false,
-            new CheckSubscriptionHandler($emailService)
-        );
+            list($queueName,) = $channel->queue_declare(
+                "",
+                false,
+                false,
+                true,
+                false
+            );
+            $channel->basic_consume(
+                $queueName,
+                '',
+                false,
+                true,
+                false,
+                false,
+                new CheckSubscriptionHandler($emailService)
+            );
 
-        while ($channel->is_open()) {
-            $channel->wait();
+            while ($channel->is_open()) {
+                $channel->wait();
+            }
+
+            $channel->close();
+            $connection->close();
+        } catch (Exception $exception) {
+            echo sprintf(
+                "%s (%s): Ошибка при попытке проверить подписку пользователя: %s\n",
+                __METHOD__,
+                (new DateTime())->format('Y-m-d H:i:s'),
+                $exception->getMessage(),
+            );
+
+            return;
         }
-
-        $channel->close();
-        $connection->close();
     }
 }

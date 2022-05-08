@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 use Phinx\Migration\AbstractMigration;
 
-final class CreateUserTablee extends AbstractMigration
+final class CreateUserTable extends AbstractMigration
 {
     public function up(): void
     {
@@ -24,7 +24,7 @@ create table if not exists users (
     email_id bigint not null references emails,
     expired_at bigint,
     is_admin bool default false,
-    confirmed bool default false
+    is_confirmed bool default false
 );
 
 create unique index if not exists "user_id_email_id_idx" on users using btree (user_id, email_id);

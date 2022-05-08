@@ -16,6 +16,19 @@ services:
     networks:
       - karma8-network
 
+  rabbit:
+    image: rabbitmq:latest
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
+    networks:
+      - karma8-network
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - karma8-network
+
   php:
     build:
       args:
@@ -29,17 +42,13 @@ services:
     restart: always
     volumes:
       - './:/var/www/karma8'
+    depends_on:
+      - redis
+      - rabbit
+      - db
     networks:
       - karma8-network
-
-  rabbit:
-    image: rabbitmq:latest
-    networks:
-      - karma8-network
-    environment:
-      RABBITMQ_DEFAULT_USER: ${RABBIT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASS}
 
 networks:
   karma8-network:
-    external: false
+    external: true

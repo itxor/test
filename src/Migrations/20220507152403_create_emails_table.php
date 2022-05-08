@@ -21,7 +21,7 @@ final class CreateEmailsTable extends AbstractMigration
 create table if not exists emails (
     id bigint not null primary key,
     email varchar(70) not null,
-    checked bool default false,
+    is_checked bool default false,
     is_valid bool default false
 );
 

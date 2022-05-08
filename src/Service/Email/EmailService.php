@@ -16,9 +16,9 @@ class EmailService
         $this->emailRepository = $emailRepository;
     }
 
-    public function getNotCheckedEmails() : array
+    public function getNotCheckedEmailsBatch(int $lastId, int $limit) : array
     {
-        return $this->emailRepository->findNotCheckedEmails();
+        return $this->emailRepository->findNotCheckedEmailsBatch($lastId, $limit);
     }
 
     public function isValidEmailByUserId(int $userId) : bool
