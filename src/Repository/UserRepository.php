@@ -25,7 +25,7 @@ class UserRepository
         $threeDaysExpiredEnd = (new DateTime())->modify('+73 days')->getTimestamp();
 
         $sql = <<<SQL
-select u.user_id, e.id as email_id
+select u.user_id, e.id as email_id, e.email
 from users u
 join emails e on u.email_id = e.id
 left join emails_3_day_log e3dl on e.id = e3dl.email_id and u.user_id = e3dl.user_id

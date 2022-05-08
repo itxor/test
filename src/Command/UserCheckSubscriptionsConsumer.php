@@ -30,13 +30,16 @@ class UserCheckSubscriptionsConsumer implements CommandInterface
             );
 
             list($queueName,) = $channel->queue_declare(
-                "",
+                RabbitClient::USER_EXPIRE_SUBSCRIPTION_QUEUE,
                 false,
                 false,
-                true,
+                false,
                 false
             );
-            $channel->queue_bind($queueName, RabbitClient::USER_EXPIRE_SUBSCRIPTION_EXCHANGE);
+            $channel->queue_bind(
+                $queueName,
+                RabbitClient::USER_EXPIRE_SUBSCRIPTION_EXCHANGE
+            );
             $channel->basic_consume(
                 $queueName,
                 '',

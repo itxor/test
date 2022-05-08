@@ -8,7 +8,10 @@ use PhpAmqpLib\Connection\AMQPStreamConnection;
 class RabbitClient
 {
     public const USER_EXPIRE_SUBSCRIPTION_EXCHANGE = 'user_subscribe_expire';
+    public const USER_EXPIRE_SUBSCRIPTION_QUEUE  = 'user_subscribe_expire_queue';
+
     public const EMAIL_VALIDATE_EXCHANGE = 'email_validate_expire';
+    public const EMAIL_VALIDATE_QUEUE = 'email_validate_expire_queue';
 
     private static ?self $client = null;
 

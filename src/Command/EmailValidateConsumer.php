@@ -13,8 +13,6 @@ use Exception;
 
 class EmailValidateConsumer implements CommandInterface
 {
-    public static string $name = "";
-
     public function execute() : void
     {
         $logger = new LogService();
@@ -32,10 +30,10 @@ class EmailValidateConsumer implements CommandInterface
             );
 
             list($queueName,) = $channel->queue_declare(
-                "",
+                RabbitClient::EMAIL_VALIDATE_QUEUE,
                 false,
                 false,
-                true,
+                false,
                 false
             );
             $channel->queue_bind($queueName, RabbitClient::EMAIL_VALIDATE_EXCHANGE);

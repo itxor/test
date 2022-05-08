@@ -51,7 +51,7 @@ class CheckUsersSubscriptionCommand implements CommandInterface
                     }
 
                     $userService->dispatchExpireSubscriptionMessage(
-                        new SendEmailDTO($user['user_id'], $user['email_id'])
+                        new SendEmailDTO($user['user_id'], $user['email_id'], $user['email'])
                     );
                 }
 

@@ -35,6 +35,8 @@ class CheckUsersEmailsCommand implements CommandInterface
             $lastId = 0;
             while (true) {
                 $emails = $emailService->getNotCheckedEmailsBatch($lastId, self::LIMIT);
+                echo "Количество:" . count($emails) . PHP_EOL;
+
                 if (0 === count($emails)) {
                     break;
                 }

@@ -8,10 +8,17 @@ class SendEmailDTO
 
     private int $emailId;
 
-    public function __construct(int $userId, int $emailId)
+    private string $email;
+
+    public function __construct(
+        int $userId,
+        int $emailId,
+        string $email
+    )
     {
         $this->userId = $userId;
         $this->emailId = $emailId;
+        $this->email = $email;
     }
 
     public function getUserId() : int
@@ -22,5 +29,10 @@ class SendEmailDTO
     public function getEmailId() : int
     {
         return $this->emailId;
+    }
+
+    public function getEmail() : string
+    {
+        return $this->email;
     }
 }

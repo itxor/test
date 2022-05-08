@@ -33,7 +33,9 @@ SQL;
         $stmt->bindParam('userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetch();
+        $email = $stmt->fetch();
+
+        return $email['is_valid'];
     }
 
     public function findNotCheckedEmailsBatch(int $lastId, int $limit): array

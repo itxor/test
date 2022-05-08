@@ -2,7 +2,8 @@
 
 return [
     "paths" => [
-        "migrations" => "src/Migrations"
+        "migrations" => "src/Migrations",
+        "seeds" => "src/Seeds",
     ],
     "environments" => [
         "default_migration_table" => "phinxlog",
