@@ -19,10 +19,11 @@ final class CreateEmailsTable extends AbstractMigration
    {
        return <<<SQL
 create table if not exists emails (
-    id bigint not null primary key,
+    id serial not null primary key,
     email varchar(70) not null,
     is_checked bool default false,
-    is_valid bool default false
+    is_valid bool default false,
+    created_time timestamp default now()
 );
 
 create unique index if not exists "email_idx" on emails using btree (email);

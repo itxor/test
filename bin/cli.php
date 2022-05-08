@@ -8,6 +8,8 @@ require __DIR__ . '/../vendor/autoload.php';
 
 ini_set('memory_limit', '700M');
 
+$logger = new LogService();
+
 $envPath = './.env';
 if (!file_exists($envPath)) {
     echo "Не найден .env файл!";
@@ -26,29 +28,40 @@ try {
 
 $class = $argv[1] ?? null;
 if (null === $class) {
-    echo "Не передана команда первым аргументом";
+    $msg = "Не передана команда первым аргументом";
+    echo $msg . PHP_EOL;
+
+    $logger->getLogger()->error($msg);
 
     return;
 }
 
 $path = sprintf('./src/Command/%s.php', $class);
 if (!file_exists($path)) {
-    echo "Переданная команда не найдена!\n";
+    $msg = sprintf("Переданная команда %s не найдена!\n", $class);
+    echo $msg . PHP_EOL;
+
+    $logger->getLogger()->error($msg);
 
     return;
 }
 
 if (!is_readable($path)) {
-    echo "Файл недоступен для чтения, выставьте верные права и повторите запуск!\n";
+    $msg = sprintf("Файл %s недоступен для чтения, выставьте верные права и повторите запуск!\n", $path);
+    echo $msg . PHP_EOL;
+
+    $logger->getLogger()->error($msg);
 
     return;
 }
 
-$logger = new LogService();
 $runner = new Command\Runner($class);
 
-$runner->run();
-//} catch (Exception $exception) {
-//    echi $
-//    $logger->getLogger()->error($exception->getMessage());
-//}
+try {
+    $runner->run();
+} catch (Exception $exception) {
+    $msg = sprintf("Ошибка при попытке запустить задачу: %s", $exception->getMessage());
+    echo $msg . PHP_EOL;
+
+    $logger->getLogger()->error($msg);
+}

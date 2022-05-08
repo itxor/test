@@ -46,6 +46,7 @@ services:
     restart: always
     volumes:
       - './:/var/www/karma8'
+      - './log:/var/www/karma8/log'
     depends_on:
       - redis
       - rabbit

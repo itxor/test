@@ -2,7 +2,7 @@
 
 namespace App\Command;
 
-use Analog\Analog;
+use App\Repository\EmailLogRepository;
 use App\Repository\EmailRepository;
 use App\Service\Email\EmailService;
 use App\Service\Email\ValidateDTO;
@@ -13,6 +13,8 @@ use Exception;
 
 class CheckUsersEmailsCommand implements CommandInterface
 {
+    private const LIMIT = 100000;
+
     public function execute(): void
     {
         $logger = new LogService();
@@ -28,13 +30,11 @@ class CheckUsersEmailsCommand implements CommandInterface
             }
             $lockService->acquire(__CLASS__);
 
-            $emailService = new EmailService(new EmailRepository());
+            $emailService = new EmailService(new EmailRepository(), new EmailLogRepository());
 
             $lastId = 0;
-            $limit = 100000;
             while (true) {
-                $emails = $emailService->getNotCheckedEmailsBatch($lastId, $limit);
-
+                $emails = $emailService->getNotCheckedEmailsBatch($lastId, self::LIMIT);
                 if (0 === count($emails)) {
                     break;
                 }

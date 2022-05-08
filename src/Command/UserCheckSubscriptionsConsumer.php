@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Repository\EmailLogRepository;
 use App\Repository\EmailRepository;
 use App\Service\Email\EmailService;
 use App\Service\LogService;
@@ -15,7 +16,7 @@ class UserCheckSubscriptionsConsumer implements CommandInterface
     public function execute() : void
     {
         $logger = new LogService();
-        $emailService = new EmailService(new EmailRepository());
+        $emailService = new EmailService(new EmailRepository(), new EmailLogRepository());
 
         try {
             $connection = RabbitClient::get()->connect();

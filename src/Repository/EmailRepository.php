@@ -3,12 +3,16 @@
 namespace App\Repository;
 
 use App\Service\DatabaseConnection;
+use Exception;
 use PDO;
 
 class EmailRepository
 {
     private PDO $connection;
 
+    /**
+     * @throws Exception
+     */
     public function __construct()
     {
         $this->connection = DatabaseConnection::get()->connect();
@@ -29,9 +33,7 @@ SQL;
         $stmt->bindParam('userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
 
-        $userInfo = $stmt->fetch();
-
-        return (bool)$userInfo['is_valid'];
+        return $stmt->fetch();
     }
 
     public function findNotCheckedEmailsBatch(int $lastId, int $limit): array

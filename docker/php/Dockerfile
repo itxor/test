@@ -17,3 +17,7 @@ RUN mkdir -p /usr/src/php/ext/redis \
 COPY --from=composer /usr/bin/composer /usr/local/bin/composer
 
 RUN mkdir -p ~/.composer
+
+WORKDIR /var/www/karma8
+
+RUN mkdir -p log

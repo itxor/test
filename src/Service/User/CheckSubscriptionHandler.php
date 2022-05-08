@@ -3,6 +3,7 @@
 namespace App\Service\User;
 
 use App\Service\LogService;
+use Exception;
 use PhpAmqpLib\Message\AMQPMessage;
 use App\Service\Email\EmailService;
 
@@ -20,26 +21,30 @@ class CheckSubscriptionHandler
 
     public function __invoke(AMQPMessage $message) : void
     {
-        $body = $message->body;
-        if (!is_string($body)) {
-            $this->logger->getLogger()->error('Ошибка при попытке проверить подписку пользователя: не удалось распарсить тело сообщения');
+        try {
+            $body = $message->body;
+            if (!is_string($body)) {
+                $this->logger->getLogger()->error('Ошибка при попытке проверить подписку пользователя: не удалось распарсить тело сообщения');
 
-            return;
+                return;
+            }
+
+            $dto = unserialize($body);
+            if (!$dto instanceof SendEmailDTO) {
+                $this->logger->getLogger()->error('Ошибка при попытке проверить подписку пользователя: переданное dto не соответствует обработчику');
+
+                return;
+            }
+
+            if (!$this->emailService->isValidEmailByUserId($dto->getUserId())) {
+                $this->logger->getLogger()->error('Ошибка при попытке проверить подписку пользователя: еmail помечен как невалидный');
+
+                return;
+            }
+
+            $this->emailService->sendEmail($dto);
+        } catch (Exception $exception) {
+            $this->logger->getLogger()->error($exception->getMessage());
         }
-
-        $dto = unserialize($body);
-        if (!$dto instanceof SendEmailDTO) {
-            $this->logger->getLogger()->error('Ошибка при попытке проверить подписку пользователя: переданное dto не соответствует обработчику');
-
-            return;
-        }
-
-        if (!$this->emailService->isValidEmailByUserId($dto->getUserId())) {
-            $this->logger->getLogger()->error('Ошибка при попытке проверить подписку пользователя: еmail помечен как невалидный');
-
-            return;
-        }
-
-        $this->emailService->sendEmail($dto);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Repository\EmailLogRepository;
 use App\Repository\EmailRepository;
 use App\Repository\UserRepository;
 use App\Service\Email\EmailService;
@@ -31,30 +32,26 @@ class CheckUsersSubscriptionCommand implements CommandInterface
             $lockService->acquire(__CLASS__);
 
             $userService = new UserService(new UserRepository());
-            $emailService = new EmailService(new EmailRepository());
+            $emailService = new EmailService(new EmailRepository(), new EmailLogRepository());
 
-            $threeDaysExpired = (new DateTime())->modify('+3 days')->getTimestamp();
 
             $lastId = 0;
             while (true) {
-                $users = $userService->getExpiredUsersBatch(
-                    $threeDaysExpired,
+                $users = $userService->getExpiredThreeDaysUsersBatch(
                     $lastId,
                     self::LIMIT
                 );
                 if (0 === count($users)) {
                     break;
                 }
-                echo "count: " . count($users) . "\n";
 
                 foreach ($users as $user) {
                     if (!$emailService->isValidEmailByUserId($user['user_id'])) {
                         continue;
                     }
 
-                    echo "отправляем событие!\n";
                     $userService->dispatchExpireSubscriptionMessage(
-                        new SendEmailDTO($user['user_id'])
+                        new SendEmailDTO($user['user_id'], $user['email_id'])
                     );
                 }
 

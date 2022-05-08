@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use Exception;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class RabbitClient
@@ -15,12 +16,28 @@ class RabbitClient
     {
     }
 
+    /**
+     * @throws Exception
+     */
     public function connect() : AMQPStreamConnection
     {
-        $host = getenv('RABBIT_HOST');
-        $port = getenv('RABBIT_PORT');
-        $user = getenv('RABBIT_USER');
-        $pass = getenv('RABBIT_PASS');
+        $err = null;
+        if (false === ($host = getenv('RABBIT_HOST'))) {
+            $err = 'Не передана переменная окружения RABBIT_HOST';
+        }
+        if (false === ($port = getenv('RABBIT_PORT'))) {
+            $err = 'Не передана переменная окружения RABBIT_PORT';
+        }
+        if (false === ($user = getenv('RABBIT_USER'))) {
+            $err = 'Не передана переменная окружения RABBIT_USER';
+        }
+        if (false === ($pass = getenv('RABBIT_PASS'))) {
+            $err = 'Не передана переменная окружения RABBIT_PASS';
+        }
+
+        if (null !== $err) {
+            throw new Exception($err);
+        }
 
         return new AMQPStreamConnection($host, $port, $user, $pass);
     }

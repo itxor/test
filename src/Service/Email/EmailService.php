@@ -2,18 +2,29 @@
 
 namespace App\Service\Email;
 
+use App\Repository\EmailLogRepository;
 use App\Repository\EmailRepository;
 use App\Service\RabbitClient;
 use App\Service\User\SendEmailDTO;
+use Exception;
 use PhpAmqpLib\Message\AMQPMessage;
 
 class EmailService
 {
+    public const EMAIL_SEND_STATUS_SUCCESS = 1;
+    public const EMAIL_SEND_STATUS_ERROR = 2;
+
     private EmailRepository $emailRepository;
 
-    public function __construct(EmailRepository $emailRepository)
+    private EmailLogRepository $emailLogRepository;
+
+    public function __construct(
+        EmailRepository $emailRepository,
+        EmailLogRepository $emailLogRepository
+    )
     {
         $this->emailRepository = $emailRepository;
+        $this->emailLogRepository = $emailLogRepository;
     }
 
     public function getNotCheckedEmailsBatch(int $lastId, int $limit) : array
@@ -26,9 +37,11 @@ class EmailService
         return $this->emailRepository->isValidEmailByUserId($userId);
     }
 
+    /**
+     * @throws Exception
+     */
     public function dispatchEmailValidateMessage(ValidateDTO $dto) : void
     {
-        echo "диспатчинг: \n";
         $connection = RabbitClient::get()->connect();
         $channel = $connection->channel();
 
@@ -42,7 +55,6 @@ class EmailService
 
         $msg = new AMQPMessage(serialize($dto));
         $channel->basic_publish($msg, RabbitClient::EMAIL_VALIDATE_EXCHANGE);
-        echo "опубликовано\n";
 
         $channel->close();
         $connection->close();
@@ -50,8 +62,6 @@ class EmailService
 
     public function validateEmail(ValidateDTO $dto) : bool
     {
-        echo "ура!\n";
-
         sleep(5);
 
         $this->emailRepository->updateCheckedStatus($dto->getEmailId(), true);
@@ -59,12 +69,25 @@ class EmailService
         return true;
     }
 
+    /**
+     * @throws Exception
+     */
     public function sendEmail(SendEmailDTO $dto) : void
     {
-        echo "ура!\n";
+        try {
+            // some works
+            sleep(5);
 
-        // todo: реализовать
-        sleep(5);
-        $userId = $dto->getUserId();
+            $this->addLog($dto, self::EMAIL_SEND_STATUS_SUCCESS);
+        } catch (Exception $exception) {
+            $this->addLog($dto, self::EMAIL_SEND_STATUS_ERROR);
+
+            throw $exception;
+        }
+    }
+
+    private function addLog(SendEmailDTO $dto, int $status) : void
+    {
+        $this->emailLogRepository->addLog($dto->getUserId(), $dto->getEmailId(), $status);
     }
 }

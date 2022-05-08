@@ -4,7 +4,7 @@ namespace App\Service\User;
 
 use App\Repository\UserRepository;
 use App\Service\RabbitClient;
-use DateTime;
+use Exception;
 use PhpAmqpLib\Message\AMQPMessage;
 
 class UserService
@@ -18,13 +18,16 @@ class UserService
         $this->userRepository = $userRepository;
     }
 
-    public function getExpiredUsersBatch(int $expiredTime, int $lastId, int $limit) : array
+    public function getExpiredThreeDaysUsersBatch(int $lastId, int $limit) : array
     {
         return $this
             ->userRepository
-            ->getUsersWithExpiredSubscribeBatch($expiredTime, $lastId, $limit);
+            ->getUsersWithThreeDaysExpiredSubscribeBatch($lastId, $limit);
     }
 
+    /**
+     * @throws Exception
+     */
     public function dispatchExpireSubscriptionMessage(SendEmailDTO $dto) : void
     {
         $connection = RabbitClient::get()->connect();
