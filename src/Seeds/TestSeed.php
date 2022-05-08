@@ -1,6 +1,7 @@
 <?php
 
-use Faker\Factory;
+declare(strict_types=1);
+
 use Phinx\Seed\AbstractSeed;
 
 class TestSeed extends AbstractSeed

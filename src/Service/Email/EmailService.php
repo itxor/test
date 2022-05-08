@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service\Email;
 
 use App\Repository\EmailLogRepository;
@@ -62,6 +64,8 @@ class EmailService
     }
 
     /**
+     * Валидация email'ов у mailgun - платная, поэтому замокал её sleep'ом на 5 секунд.
+     *
      * @throws Exception
      */
     public function validateEmail(ValidateDTO $dto): bool
@@ -69,8 +73,9 @@ class EmailService
         echo sprintf("validate email: %s (user_id: %d)\n", $dto->getEmail(), $dto->getUserId());
 
         try {
-            $client = Mailgun::create(getenv('MAILGUN_KEY'));
-            $client->emailValidation()->validate($dto->getEmail());
+//            $client = Mailgun::create(getenv('MAILGUN_KEY'));
+//            $client->emailValidation()->validate($dto->getEmail());
+            sleep(5);
 
             $this->emailRepository->updateCheckedStatus($dto->getEmailId(), true);
         } catch (Exception $exception) {

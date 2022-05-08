@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Repository\EmailLogRepository;
@@ -13,6 +15,10 @@ use App\Service\User\UserService;
 use DateTime;
 use Exception;
 
+/**
+ * Команда подразумевает запуск по крону.
+ * Для избежания коллизий, была реализована система блокировок на основе Redis.
+ */
 class CheckUsersSubscriptionCommand implements CommandInterface
 {
     private const LIMIT = 100000;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Service\DatabaseConnection;
@@ -33,9 +35,12 @@ SQL;
         $stmt->bindParam('userId', $userId, PDO::PARAM_INT);
         $stmt->execute();
 
-        $email = $stmt->fetch();
+        $isValid = $stmt->fetch();
+        if (is_array($isValid) && array_key_exists('is_valid', $isValid)) {
+            return $isValid['is_valid'];
+        }
 
-        return $email['is_valid'];
+        return $isValid;
     }
 
     public function findNotCheckedEmailsBatch(int $lastId, int $limit): array

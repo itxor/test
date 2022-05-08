@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Repository\EmailLogRepository;
@@ -11,6 +13,11 @@ use App\Service\RabbitClient;
 use DateTime;
 use Exception;
 
+/**
+ * Консьюмеры, в отличие от команд, должны висеть в памяти, поэтому для запуска подразумевается
+ * использование какой-либо демонизирующей обёртки, например - supervisor.
+ * В случае с supervisor будет возможность контролировать не только работу воркера, но и количество.
+ */
 class EmailValidateConsumer implements CommandInterface
 {
     public function execute() : void
